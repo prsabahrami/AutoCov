@@ -1,16 +1,17 @@
 # AutoCov
+Hi!
 
-AutoCov is a CLI tool that automatically creates tests for your Python project until it reaches a specified code coverage threshold.
+I decided to make a cli tool designed to help you automatically generate tests for your Python projects until you reach your desired code coverage. Although this project is still in its early stages, my goal is to make achieving your code coverage targets as seamless as possible. The vision for test generation is something like a mixture of Hoare logic along with creating a Digraph out of the uncovered lines and using this to generate tests.
 
 ## Features
 
-- Analyzes current code coverage
-- Generates new tests using Groq AI
-- Iteratively improves coverage until the target is reached
+- [x] **Code Coverage Analysis**: AutoCov analyzes your current code coverage to identify areas that need more tests.
+- [ ] **Automated Test Generation**: Using Groq AI, AutoCov generates new tests to improve your coverage.
+- [ ] **Iterative Improvement**: The tool runs tests iteratively, enhancing coverage until the specified threshold is met.
+- [ ] **Visual Representation**: AutoCov creates a Digraph to visualize your code coverage.
+- [ ] **Interactive Test Modification**: It opens an editor window where you can review and modify the generated tests.
 
 ## Installation
-
-1. Clone the repository:
    ```
    git clone https://github.com/prsabahrami/autocov.git
    cd autocov
@@ -30,3 +31,6 @@ AutoCov is a CLI tool that automatically creates tests for your Python project u
 ## Usage
 
 Run AutoCov with the following command:
+   ```
+   python src/main.py
+   ```

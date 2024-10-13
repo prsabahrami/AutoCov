@@ -59,7 +59,7 @@ def analyze_coverage(project_path):
         console.print(f"[bold red]Source directory not found in {project_path}[/bold red]")
         return 0
 
-    cov = Coverage(source=[src_dir], omit=["*/tests/*"])
+    cov = Coverage(source=[src_dir], omit=["*/tests/*"]) # TODO: Add branch coverage
     cov.start()
 
     run_tests(project_path)
@@ -270,13 +270,11 @@ def main():
     load_dotenv()
     print_header()
 
-    parser = argparse.ArgumentParser(description="AutoCov: Automatically create tests and check code coverage")
-    parser.add_argument("-p", "--project-path", help="The path to the project folder", required=True)
-    parser.add_argument("-c", "--coverage-limit", help="The coverage limit in percentage", required=True, type=float)
-    parser.add_argument("-m", "--model", help="The model to use for generating tests", default=DEFAULT_MODEL)
-    args = parser.parse_args()
+    project_path = console.input("[bold]Enter the path to the project folder: [/bold]").strip()
+    coverage_limit = float(console.input("[bold]Enter the coverage limit in percentage: [/bold]").strip())
+    model = console.input(f"[bold]Enter the model to use for generating tests (default: {DEFAULT_MODEL}): [/bold]").strip() or DEFAULT_MODEL
 
-    project_path = os.path.abspath(args.project_path)
+    project_path = os.path.abspath(project_path)
 
     with console.status("[bold green]Installing project dependencies...", spinner="dots"):
         install_dependencies(project_path)
@@ -293,11 +291,11 @@ def main():
         console.print("[bold red]Failed to fetch available models[/bold red]")
         return
 
-    if args.model not in available_models:
-        console.print(f"[bold yellow]Specified model '{args.model}' is not available. Using default model '{DEFAULT_MODEL}'[/bold yellow]")
+    if model not in available_models:
+        console.print(f"[bold yellow]Specified model '{model}' is not available. Using default model '{DEFAULT_MODEL}'[/bold yellow]")
         model = DEFAULT_MODEL
     else:
-        model = args.model
+        model = model
 
     groq_client = Groq(api_key=groq_api_key)
 
@@ -312,7 +310,7 @@ def main():
     ) as progress:
         task = progress.add_task("[cyan]Generating tests...", total=max_iterations)
 
-        while current_coverage < args.coverage_limit and iteration < max_iterations:
+        while current_coverage < coverage_limit and iteration < max_iterations:
             iteration += 1
             progress.update(task, advance=1, description=f"[cyan]Iteration {iteration}")
             
@@ -321,8 +319,8 @@ def main():
                 current_coverage = analyze_coverage(project_path)
                 console.print(f"[bold green]Current coverage: {current_coverage}%[/bold green]")
 
-                if current_coverage < args.coverage_limit:
-                    console.print(f"[bold yellow]Coverage is below the target of {args.coverage_limit}%[/bold yellow]")
+                if current_coverage < coverage_limit:
+                    console.print(f"[bold yellow]Coverage is below the target of {coverage_limit}%[/bold yellow]")
                     user_input = console.input(f"[bold]Do you want to proceed with generating tests for iteration {iteration}? (y/n): [/bold]")
                     console.print(f"[italic]User input received: {user_input}[/italic]")
                     
@@ -344,7 +342,7 @@ def main():
                     console.print(f"[bold blue]Running tests for iteration {iteration}...[/bold blue]")
                     run_tests(project_path)
                 else:
-                    console.print(f"[bold green]Target coverage of {args.coverage_limit}% reached![/bold green]")
+                    console.print(f"[bold green]Target coverage of {coverage_limit}% reached![/bold green]")
                     break
             except Exception as e:
                 console.print(f"[bold red]Error in iteration {iteration}: {str(e)}[/bold red]")
@@ -352,14 +350,13 @@ def main():
 
             console.print(f"[bold cyan]End of iteration {iteration}[/bold cyan]\n")
 
-    if iteration == max_iterations:
         console.print(f"[bold yellow]Maximum iterations reached. Final coverage: {current_coverage}%[/bold yellow]")
-    
-    console.print(f"\n[bold cyan]Final coverage: {current_coverage}%[/bold cyan]")
-    if current_coverage >= args.coverage_limit:
+    if iteration == max_iterations:
+        console.print(f"\n[bold cyan]Final coverage: {current_coverage}%[/bold cyan]")
+    if current_coverage >= coverage_limit:
         console.print("[bold green]Target coverage reached successfully![/bold green]")
     else:
-        console.print(f"[bold yellow]Target coverage of {args.coverage_limit}% not reached. Consider running the tool again or adjusting your tests manually.[/bold yellow]")
+        console.print(f"[bold yellow]Target coverage of {coverage_limit}% not reached. Consider running the tool again or adjusting your tests manually.[/bold yellow]")
 
 if __name__ == "__main__":
     main()

@@ -3,3 +3,5 @@ groq
 coverage
 pytest
 toml
+requests
+rich
